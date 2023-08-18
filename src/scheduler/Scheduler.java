@@ -3,6 +3,7 @@ package scheduler;
 
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 /*
@@ -31,20 +32,68 @@ import java.util.Scanner;
 
 public class Scheduler {
 	
+	
 
 	DaysOfTheWeek [] days = DaysOfTheWeek.values(); 
 	
     public static void main(String[] args) {
     	
+    	Scanner sc = new Scanner(System.in);
+    	
     	Scheduler scheduler = new Scheduler();
     	
-    	scheduler.add();
+    	boolean continue_ = true;
+    	
+    	
+    	
+    	do {
+    		
+    		
+    		
+    		System.out.println("What do you want to do with your schedule? (Add, Remove, View, Quit)");
+    		
+    		
+    		
+    		
+    		String option = sc.nextLine();
+    		
+    		
+    		
+    		
+    		switch(option) {
+    		
+    		case "Add":
+    			scheduler.add(sc);
+    			break;
+    			
+    		case "Remove":
+    			scheduler.remove(sc);
+    			break;
+    			
+    		case "View":
+    			scheduler.view();
+    			break;
+    			
+    		case "Quit":
+    			continue_ = false;
+    			
+    			break;
+    			
+    		default:
+    			System.out.println("What you entered was gibberish, " + option);
+    		}
+
+    		
+    		
+    	}while(continue_);
+    	
+    	sc.close();
     	
     }
     
     
-    public void add() {
-    	Scanner sc = new Scanner(System.in);
+    public void add(Scanner sc) {
+    	
     	
     	System.out.println("Which day do you want to add things to? (Mon, Tue, Wed, Thu, Fri)");
     	
@@ -53,27 +102,27 @@ public class Scheduler {
     	switch(a) {
     		
     	case "Mon":
-    		triviaQuestion(0);
+    		addPrompting(0,sc);
     	break;
     		
     	
     	case "Tue":
-    		triviaQuestion(1);
+    		addPrompting(1,sc);
     	break;
     	
     	
     	case "Wed":
-    		triviaQuestion(2);
+    		addPrompting(2,sc);
     	break;
     	
     	
     	case "Thu":
-    		triviaQuestion(3);
+    		addPrompting(3,sc);
     	break;
     	
     	
     	case "Fri":
-    		triviaQuestion(4);
+    		addPrompting(4,sc);
     	break;
     	
     	}
@@ -83,20 +132,19 @@ public class Scheduler {
     	
     }
     
-    public void attemptAddToSchedule(Integer num, String time, String addThis) throws SchedulingConflictException{
+    public void attemptAddToSchedule(Integer day, String time, String addThis) throws SchedulingErrorException{
     	// time would be a key in the hashmap
-    	if(days[num].schedule.containsKey(Integer.parseInt(time))) {
-    		throw new SchedulingConflictException();
+    	if(days[day].schedule.containsKey(Integer.parseInt(time))) {
+    		throw new SchedulingErrorException();
     	}
     	else {
-    		days[num].schedule.put(Integer.parseInt(time), addThis);
+    		days[day].schedule.put(Integer.parseInt(time), addThis);
     	}
     }
     
-    public void triviaQuestion(Integer num) {
-    	Scanner sc = new Scanner(System.in);
+    public void addPrompting(Integer day, Scanner sc) {
     	
-		System.out.println("Enter what time you want (1-24)");
+		System.out.println("Enter what time you want (0-23)");
 		String time = sc.nextLine();
 		
 		System.out.println("Enter what you want to add (anything)");
@@ -107,11 +155,87 @@ public class Scheduler {
 		arr[1] = addThis;
 		
 		try {
-			attemptAddToSchedule(num, time,addThis);
-		}catch(SchedulingConflictException e) {
-			System.out.println("You double booked on " + days[num] + " at " + time);
+			attemptAddToSchedule(day, time,addThis);
+		}catch(SchedulingErrorException e) {
+			System.out.println("You double booked on " + days[day] + " at " + time);
 			
 			
 		}
 	}
+    
+    
+    public void view() {
+    	
+    	for(DaysOfTheWeek day: days) {
+    		for(Entry<Integer, String> e : day.schedule.entrySet()) {
+        		System.out.println("You have " + e.getValue() + " at " + e.getKey() + " on " + day);
+        	}
+    	}
+    }
+    
+    public void remove(Scanner sc) {
+    	
+    	
+    	System.out.println("Which day do you want to remove activities from? (Mon, Tue, Wed, Thu, Fri)");
+    	
+    	String a = sc.nextLine();
+    	
+    	switch(a) {
+    		
+    	case "Mon":
+    		removePrompting(0,sc);
+    	break;
+    		
+    	
+    	case "Tue":
+    		removePrompting(1,sc);
+    	break;
+    	
+    	
+    	case "Wed":
+    		removePrompting(2,sc);
+    	break;
+    	
+    	
+    	case "Thu":
+    		removePrompting(3,sc);
+    	break;
+    	
+    	
+    	case "Fri":
+    		removePrompting(4,sc);
+    	break;
+    	
+    	}
+    	
+    	
+    }
+    
+    public void attemptToRemoveFromSchedule(Integer day, String time) throws SchedulingErrorException{
+    	// time would be a key in the hashmap
+    	if(!days[day].schedule.containsKey(Integer.parseInt(time))) {
+    		throw new SchedulingErrorException();
+    	}
+    	else {
+    		days[day].schedule.remove(Integer.parseInt(time));
+    	}
+    }
+    
+    public void removePrompting(Integer day, Scanner sc) {
+    	
+    	
+    	
+    	System.out.println("Enter what time you want to remove from (0-23)");
+		String time = sc.nextLine();
+		
+		
+		try {
+			attemptToRemoveFromSchedule(day, time);
+		}catch(SchedulingErrorException e) {
+			System.out.println("You tried to remove something from " + days[day] + " at " + time);
+			
+		}
+		
+		
+    }
 }
